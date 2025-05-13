@@ -1,33 +1,37 @@
 from fastapi import FastAPI
-from models import Rating
-from database import db, songs_ref, ratings_ref
-from fastapi.middleware.cors import CORSMiddleware
+from models import RatingRequest
+from firestore_config import db, logs, songs, albums, singers
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # GCP'ye deploy edince domain bazlı daralt
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
 @app.get("/songs")
-def get_songs():
-    songs = [doc.to_dict() for doc in songs_ref.stream()]
-    return songs
+def get_all_songs():
+    return [doc.to_dict() for doc in songs.stream()]
 
-# Kullanıcıdan rating al
+
 @app.post("/rate")
-def rate_song(rating: Rating):
-    ratings_ref.add(rating.dict())
-    return {"message": "Rating submitted."}
+def rate_song(data: RatingRequest):
+    # Rating log kaydı oluştur
+    logs.add(data.dict())
 
-# Belirli şarkının ortalama puanını döndür
-@app.get("/average/{song_id}")
-def get_average(song_id: str):
-    all_ratings = ratings_ref.where("song_id", "==", song_id).stream()
-    scores = [r.to_dict()["rating"] for r in all_ratings]
-    if scores:
-        return {"average": sum(scores) / len(scores)}
-    return {"average": None}
+    # Şarkı ortalamasını güncelle
+    song_logs = logs.where("songID", "==", data.songID).stream()
+    ratings = [doc.to_dict()["rate"] for doc in song_logs]
+    avg = sum(ratings) / len(ratings)
+    songs.document(data.songID).update({"avgRateSong": avg})
+    return {"message": "Rating submitted", "new_avg": avg}
+
+
+@app.get("/singers/{sid}/avg")
+def get_singer_avg(sid: str):
+    # Albümleri bul
+    album_ids = [a.id for a in albums.where("sid", "==", sid).stream()]
+    # Albümlere ait şarkıları bul
+    singer_songs = [doc.to_dict() for doc in songs.stream() if doc.to_dict()["albumID"] in album_ids]
+    ratings = [s.get("avgRateSong", 0) for s in singer_songs if "avgRateSong" in s]
+    if not ratings:
+        return {"avgRateSinger": None}
+    avg = sum(ratings) / len(ratings)
+    singers.document(sid).update({"avgRateSinger": avg})
+    return {"avgRateSinger": avg}
