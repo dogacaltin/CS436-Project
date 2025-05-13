@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "thermal-imprint-459211-c7",
+  "private_key_id": "500ba9fb2a6dbd0b0e6eddc3dcbc2d16c91fd735",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCYZIhOz17XjbZ2\nIYWN3Nx1MeL6kV1YGaM5HOg6fAvyJM0gMKWlYq/8nwJqNJ26cwnQKlLyrMkFKa/g\nU9wBHOUpGZ67dy+gCM90eJXY5A+g96JBjoMMEcvysIURXxYg9UfAm3BlPJrFncRF\n/aohtK2mDKaX5KFpONy1O6OlxbDgydTD9OXSy/7PRpk2E72JQKGpf23OGHnCeRAd\n+9BnpRBnzQCPckFAO8vd+CR53g3ZrNhu9EemMvLfLhPH8NHGpHR48Xxk5l8NPzGG\ncYmZd5TlpBwZpo7mtKOVWjxe7BjFT9wXbDThTBWilx3tynHJmeRCeBmjNEdY+vjq\naxOSrVC3AgMBAAECggEAJKZs99M8ooek/bUjKxKWfKMCTTO/qMwFqtsuaL5jmxlJ\nsfexJtzcqVtOl99OncRD9GnxaAaxE8pKT5+rdiMOY/uS5tALxqfHyOGlXDPBJHvZ\n7H1LPBBdpeDZJ+vf5Q5IcuSPO/G+4U8HoLOYgqGy74/0Uux7+1PfFMEiouAwIWdZ\n91JbIfDVzeG1HrEl8YV5sIPCnYpxmOEMqsr1KXdKvkJiNorVnRSYDTiknuZlrAM3\njIILaGX5jQn0/kCxOVE0SIaE4WvvHGCw8PhSKAQgUORpUKVAiBtAGfKuwFBipyCN\nntXlMn71gd+VBKTHzT3JPAMxE57i7eOLgnhrYPiyCQKBgQDK9WzOjwpyEuZIaqNs\nzoa852JdLimJ7kn9LdoF+O1cWb12j9dOdk/JtHO+UT7Ihu6J2ls9KeGy95xM4HEB\nFonoOhMh1g7fW+uYn46CPmKsYod/JXICFb2up1jV7vbhmoxac8Gk2rwviyT6ImSp\ndNOVqQbwsV2+Pb+742k5/3KU3wKBgQDAOBV2gv7HTSZrqzwBZF5Ajw6qCOF6Xmjz\ntP4RJMztqjPAVFsXCuMQpR/lPHpTsu5TZIDfwv0bs2ATWj0Xzcd51uwarcDnzsKu\nFDjwdxYrdCYrEDa1F0OZkp9srKLcRJPCOlX/Xfdq9n9OSdAtZ8rvuXCv/iRb3Ail\nV5G5loqnKQKBgQCAlac+4s8aYLD3NmCdwecJbYsbP/DfS1IjDlawK/qt5MktgYpG\nUpzQTPx7mlutjhc4zVe603sD+O5UomnV56Ktt4WBjW3UwxbrlkMib0Xys2Xm/yFR\nAtcu/SVCPOi7HEBJ2kbYHCDX+k8ODpY56iNXEUStX6Hlspd0AWscbKP6fwKBgEBG\nwM6XcVD9+HoKkY85m9bkv5eWTqfXyCqufEMJVkmnH5UR4D/tUQ6w2OCT/6fbbpyO\nQBYTIwZPTjJKe6FpG2oft2YYcihR2IHTm1K1z8EKHvVJf7HArMc+43a4p+EWQX6y\neS1io6it8tYgErAMRC0zin4fctMQ2gdIKB+yOn05AoGBAJAWRc+xOzH9Z+5XswmQ\nSu9Bc1Mwalt5XrX83MwPhK56MmEXvymJ449pT3uaH3qyjMeatzg5lgJjLBV1X+5Q\nd/ZncWYNp+c9vD2Kwl/HFEyf0YV16hJupuId+bGT8NeRsDiuHvMLt4nErq4LUJde\nUqv9ReZRQjbP/RK8ha0DglS8\n-----END PRIVATE KEY-----\n",
+  "client_email": "firestore-access@thermal-imprint-459211-c7.iam.gserviceaccount.com",
+  "client_id": "100786863187138620478",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firestore-access%40thermal-imprint-459211-c7.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
