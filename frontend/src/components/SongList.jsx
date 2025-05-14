@@ -3,29 +3,30 @@ import { fetchSongs, rateSong } from "../api/api";
 
 const SongList = () => {
   const [songs, setSongs] = useState([]);
-  const userId = "user1"; // örnek kullanıcı
+  const [userID, setUserID] = useState("user1"); // sabit kullanıcı
 
   useEffect(() => {
-    fetchSongs().then((res) => setSongs(res.data));
+    fetchSongs()
+      .then((res) => setSongs(res.data))
+      .catch((err) => console.error(err));
   }, []);
 
-  const handleRating = async (songId, rating) => {
-    try {
-      await rateSong(userId, songId, rating);
-      alert(`You rated song ${songId} with ${rating} stars`);
-    } catch (err) {
-      console.error("Rating error:", err);
-    }
+  const handleRating = (songID, rate) => {
+    rateSong(userID, songID, rate)
+      .then(() => alert(`Rated ${songID} with ${rate}`))
+      .catch((err) => console.error(err));
   };
 
   return (
     <div>
-      <h2>Rate the Songs</h2>
+      <h2>Song List</h2>
       {songs.map((song) => (
-        <div key={song.song_id} style={{ marginBottom: "20px" }}>
-          <h4>{song.name} – {song.group_name}</h4>
+        <div key={song.id} style={{ marginBottom: "1rem" }}>
+          <strong>{song.name}</strong>
+          <p>Album: {song.albumID}</p>
+          <p>Average Rating: {song.avgRateSong?.toFixed(2) || "N/A"}</p>
           {[1, 2, 3, 4, 5].map((star) => (
-            <button key={star} onClick={() => handleRating(song.song_id, star)}>
+            <button key={star} onClick={() => handleRating(song.id, star)}>
               {star}
             </button>
           ))}

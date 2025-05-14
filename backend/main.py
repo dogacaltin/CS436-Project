@@ -1,9 +1,20 @@
 from fastapi import FastAPI
 from models import RatingRequest
 from firestore_config import db, logs, songs, albums, singers
+from fastapi import HTTPException
+from models import LoginRequest, SignupRequest
+import uuid
+from firestore_config import users
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # veya ["http://localhost:3000"] gibi daha güvenli bir ayar
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/songs")
 def get_all_songs():
@@ -35,3 +46,38 @@ def get_singer_avg(sid: str):
     avg = sum(ratings) / len(ratings)
     singers.document(sid).update({"avgRateSinger": avg})
     return {"avgRateSinger": avg}
+
+
+@app.post("/signup")
+def signup(data: SignupRequest):
+    # Aynı nick varsa reddet
+    existing = users.where("nick", "==", data.nick).stream()
+    if any(existing):
+        raise HTTPException(status_code=400, detail="Nickname already in use")
+
+    pro_id = str(uuid.uuid4())  # benzersiz kullanıcı ID
+
+    users.document(pro_id).set({
+        "proID": pro_id,
+        "nick": data.nick,
+        "password": data.password  # ileride hashle
+    })
+
+    return {"message": "User created", "proID": pro_id}
+
+
+@app.post("/login")
+def login(data: LoginRequest):
+    print(f"Trying to login: {data.nick} - {data.password}")
+
+    matches = users.where("nick", "==", data.nick).where("password", "==", data.password).stream()
+    found = False
+
+    for doc in matches:
+        found = True
+        print("Login match found:", doc.to_dict())
+        return {"message": "Login successful", "proID": doc.to_dict()["proID"]}
+
+    if not found:
+        print("Login failed: no match found")
+    raise HTTPException(status_code=401, detail="Invalid credentials")

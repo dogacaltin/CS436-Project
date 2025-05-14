@@ -1,12 +1,20 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:8000"; // backend container'ına göre değişebilir
+const API_BASE = "http://localhost:8000";
 
 export const fetchSongs = () => axios.get(`${API_BASE}/songs`);
 
-export const rateSong = (user_id, song_id, rating) =>
+export const rateSong = (proID, songID, rate) =>
   axios.post(`${API_BASE}/rate`, {
-    user_id,
-    song_id,
-    rating,
+    proID,
+    songID,
+    rate,
   });
+
+
+  
+export const login = (nick, password) =>
+  axios.post(`${API_BASE}/login`, { nick, password });
+  
+export const signup = (nick, password) =>
+  axios.post(`${API_BASE}/signup`, { nick, password });

@@ -1,12 +1,17 @@
 import React from "react";
-import SongList from "./components/SongList";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import AuthPage from "./components/AuthPage";
+import HomePage from "./components/HomePage";
 
 function App() {
   return (
-    <div className="App">
-      <h1>Music Rating App</h1>
-      <SongList />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<AuthPage />} />
+        <Route path="/home" element={<HomePage />} />
+      </Routes>
+    </Router>
   );
 }
 
