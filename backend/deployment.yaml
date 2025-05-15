@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: music-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: music-backend
+  template:
+    metadata:
+      labels:
+        app: music-backend
+    spec:
+      containers:
+      - name: music-backend
+        image: gcr.io/thermal-imprint-459211-c7/music-backend:latest
+        ports:
+        - containerPort: 8000
