@@ -12,6 +12,7 @@ def update_song_avg(song_id: str):
     ratings = [doc.to_dict()["rate"] for doc in rating_docs]
     if ratings:
         avg = sum(ratings) / len(ratings)
+        avg = round(avg, 2)  
         songs.document(song_id).update({"avgRateSong": avg})
         return avg
     return None
