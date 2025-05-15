@@ -1,11 +1,11 @@
 import os
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/app/thermal-imprint-459211-c7-0f9c10fab178.json"
 from google.cloud import firestore
 
-db = firestore.Client()
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/var/secrets/google/key.json"
 
-users = db.collection("users")
-singers = db.collection("singers")
-albums = db.collection("albums")
+db = firestore.Client()
 songs = db.collection("songs")
+albums = db.collection("albums")
+singers = db.collection("singers")
+users = db.collection("users")
 logs = db.collection("logs")
