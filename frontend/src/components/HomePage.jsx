@@ -11,15 +11,16 @@ import { useNavigate } from "react-router-dom";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import axios from "axios";
+import { API_BASE } from "../api/api"; 
 
 const HomePage = () => {
-  const [proID, setProID] = useState("");
+  const [, setProID] = useState("");
   const [logs, setLogs] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [nick, setNick] = useState("");
   const [searchType, setSearchType] = useState("song");
   const navigate = useNavigate();
 
-  // Giriş kontrolü
   useEffect(() => {
     const storedID = localStorage.getItem("proID");
     if (!storedID) {
@@ -29,28 +30,46 @@ const HomePage = () => {
     }
   }, [navigate]);
 
-  // Rastgele logları çek
+  useEffect(() => {
+    const storedID = localStorage.getItem("proID");
+    if (!storedID) {
+      navigate("/");
+    } else {
+      setProID(storedID);
+      axios
+        .get(`${API_BASE}/users/${storedID}`)
+        .then((res) => {
+          setNick(res.data.nick);
+        })
+        .catch((err) => {
+          console.error("User fetch error:", err);
+        });
+    }
+  }, [navigate]);
+
   useEffect(() => {
     axios
-      .get("http://localhost:8000/logs/random")
+      .get(`${API_BASE}/logs/random`)
       .then((res) => setLogs(res.data))
       .catch((err) => console.error("Log fetch error:", err));
   }, []);
 
-  // Logout işlemi
   const handleLogout = () => {
     localStorage.removeItem("proID");
     navigate("/");
   };
 
-  // Arama butonu işlemi
   const handleSearch = () => {
     if (!searchText.trim()) {
       alert("Please enter a search term.");
       return;
     }
-  
-    navigate(`/search-results?query=${encodeURIComponent(searchText)}&type=${searchType}`);
+
+    navigate(
+      `/search-results?query=${encodeURIComponent(
+        searchText
+      )}&type=${searchType}`
+    );
   };
 
   return (
@@ -70,10 +89,10 @@ const HomePage = () => {
         <Typography variant="h3" fontWeight="bold">
           Welcome to the Music Rating App!
         </Typography>
+        <Typography variant="h3" fontWeight="bold">
+          {nick}
+        </Typography>
 
-        <Typography variant="body1">Your ID: {proID}</Typography>
-
-        {/* Arama barı */}
         <Stack direction="row" spacing={2} justifyContent="center">
           <TextField
             label="Search"
@@ -118,13 +137,10 @@ const HomePage = () => {
           </Button>
         </Stack>
 
-        {/* Butonlar */}
-
         <Button variant="outlined" color="error" onClick={handleLogout}>
           Logout
         </Button>
 
-        {/* Rastgele log gösterimi */}
         {logs.length > 0 && (
           <Box>
             <Typography variant="h5" sx={{ mt: 4 }}>
