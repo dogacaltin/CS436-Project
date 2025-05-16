@@ -9,19 +9,19 @@ import {
   Divider,
 } from "@mui/material";
 import axios from "axios";
+import { API_BASE } from "../api/api"; // ✅ Import base URL
 
 const SingerInfo = () => {
-  const { sid } = useParams(); // sanatçı ID
+  const { sid } = useParams();
   const [singer, setSinger] = useState(null);
   const [albums, setAlbums] = useState([]);
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Sanatçı bilgisi al
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/singers/${sid}`)
+      .get(`${API_BASE}/singers/${sid}`)
       .then((res) => {
         setSinger(res.data);
       })
@@ -31,13 +31,12 @@ const SingerInfo = () => {
       });
   }, [sid]);
 
-  // Albüm ve şarkı verilerini çek
   useEffect(() => {
     const fetchAlbumsAndSongs = async () => {
       try {
         const [albumsRes, songsRes] = await Promise.all([
-          axios.get("http://localhost:8000/albums"),
-          axios.get("http://localhost:8000/songs"),
+          axios.get(`${API_BASE}/albums`),
+          axios.get(`${API_BASE}/songs`),
         ]);
 
         const artistAlbums = albumsRes.data.filter((a) => a.sid === sid);
