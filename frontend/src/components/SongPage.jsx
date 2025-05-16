@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Button, Stack, Rating } from "@mui/material";
+import { Box, Typography, Stack, Rating } from "@mui/material";
 import axios from "axios";
+import { API_BASE } from "../api/api"; 
 
 const SongPage = () => {
   const [songs, setSongs] = useState([]);
@@ -8,7 +9,7 @@ const SongPage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/songs")
+      .get(`${API_BASE}/songs`)
       .then((res) => setSongs(res.data))
       .catch((err) => console.error("Song fetch error:", err));
   }, []);
@@ -20,7 +21,7 @@ const SongPage = () => {
     setRatings({ ...ratings, [songID]: newValue });
 
     axios
-      .post("http://localhost:8000/rate", {
+      .post(`${API_BASE}/rate`, {
         songID,
         proID,
         rate: newValue,
