@@ -1,0 +1,8 @@
+# Prevent default ignore rules from removing build/
+# Keep these, adjust if needed
+node_modules/
+.git
+.gitignore
+
+# Don't ignore build/!
+# DO NOT include: build/
