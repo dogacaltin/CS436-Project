@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import Rating from "@mui/material/Rating";
+import { API_BASE } from "../api/api"; // ✅ Import base URL
 
 const SongInfo = () => {
   const { songID } = useParams();
@@ -21,7 +22,7 @@ const SongInfo = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/songs")
+      .get(`${API_BASE}/songs`)
       .then((res) => {
         const match = res.data.find((s) => s.songID === songID);
         setSong(match);
@@ -29,16 +30,15 @@ const SongInfo = () => {
 
         if (match?.albumID) {
           axios
-            .get(`http://localhost:8000/albums/${match.albumID}`)
+            .get(`${API_BASE}/albums/${match.albumID}`)
             .then((albumRes) => {
               const album = albumRes.data;
               setAlbumData(album);
               setArtistID(album.sid);
 
-              // Sanatçı ismini de çek
               if (album.sid) {
                 axios
-                  .get(`http://localhost:8000/singers/${album.sid}`)
+                  .get(`${API_BASE}/singers/${album.sid}`)
                   .then((singerRes) => {
                     setArtistName(singerRes.data.name);
                   })
@@ -71,7 +71,7 @@ const SongInfo = () => {
     }
 
     axios
-      .post("http://localhost:8000/rate", {
+      .post(`${API_BASE}/rate`, {
         songID,
         proID,
         rate: rating,
@@ -129,7 +129,6 @@ const SongInfo = () => {
         ⭐ Average Rating: {song.avgRateSong.toFixed(2) || "N/A"}
       </Typography>
 
-      {/* Rating alanı */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h6">Rate this song (1–5):</Typography>
         <Rating
