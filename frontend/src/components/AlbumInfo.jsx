@@ -8,30 +8,29 @@ import {
   Paper,
 } from "@mui/material";
 import axios from "axios";
+import { API_BASE } from "../api/api"; // ✅ Import base URL
 
 const AlbumInfo = () => {
   const { albumID } = useParams();
   const [album, setAlbum] = useState(null);
   const [songs, setSongs] = useState([]);
   const [singerName, setSingerName] = useState("");
-  const [singerID, setSingerID] = useState(""); // ✅ singerID state'i eklendi
+  const [singerID, setSingerID] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Albüm bilgisi çek
     axios
-      .get(`http://localhost:8000/albums/${albumID}`)
+      .get(`${API_BASE}/albums/${albumID}`)
       .then((res) => {
         if (res.data && res.data.name) {
           setAlbum(res.data);
 
           if (res.data.sid) {
-            setSingerID(res.data.sid); // ✅ sanatçı ID kaydedildi
+            setSingerID(res.data.sid);
 
-            // Sanatçı adı çek
             axios
-              .get(`http://localhost:8000/singers/${res.data.sid}`)
+              .get(`${API_BASE}/singers/${res.data.sid}`)
               .then((singerRes) => setSingerName(singerRes.data.name))
               .catch((err) => console.error("Singer fetch error:", err));
           }
@@ -48,9 +47,8 @@ const AlbumInfo = () => {
   }, [albumID]);
 
   useEffect(() => {
-    // Albümdeki şarkıları çek
     axios
-      .get("http://localhost:8000/songs")
+      .get(`${API_BASE}/songs`)
       .then((res) => {
         const filtered = res.data.filter((s) => s.albumID === albumID);
         setSongs(filtered);
@@ -89,7 +87,6 @@ const AlbumInfo = () => {
         Genre: {album.genre}
       </Typography>
 
-      {/* 👇 Sanatçı ismine tıklanınca yönlendir */}
       <Typography
         variant="body1"
         sx={{ mb: 2, textDecoration: "underline", cursor: "pointer" }}
@@ -99,7 +96,7 @@ const AlbumInfo = () => {
       </Typography>
 
       <Typography variant="body1" sx={{ mb: 2 }}>
-        Average Rating: {album.avgRateAlbum.toFixed(2)|| "N/A"}
+        Average Rating: {album.avgRateAlbum.toFixed(2) || "N/A"}
       </Typography>
 
       <Typography variant="h6" sx={{ mt: 4 }}>
