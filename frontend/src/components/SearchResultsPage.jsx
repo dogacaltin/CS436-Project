@@ -8,6 +8,7 @@ import {
   Paper,
 } from "@mui/material";
 import axios from "axios";
+import { API_BASE } from "../api/api"; // ✅ Import backend base
 
 const SearchResultsPage = () => {
   const [searchParams] = useSearchParams();
@@ -24,7 +25,7 @@ const SearchResultsPage = () => {
 
     setLoading(true);
     axios
-      .get("http://localhost:8000/search", {
+      .get(`${API_BASE}/search`, {
         params: { query, type },
       })
       .then((res) => {
@@ -73,7 +74,7 @@ const SearchResultsPage = () => {
                 } else if (type === "album") {
                   navigate(`/albums/${item.albumID}`);
                 } else if (type === "artist") {
-                  navigate(`/artists/${item.sid}`); // İleride artist sayfası eklemek istersen hazır
+                  navigate(`/artists/${item.sid}`);
                 }
               }}
             >
