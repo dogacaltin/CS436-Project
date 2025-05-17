@@ -1,9 +1,28 @@
 import random
-from firestore_config import users, logs, songs, albums, singers
-from ratings import submit_rating
-from models import RatingRequest
+from google.cloud import firestore
+from dataclasses import dataclass
+import uuid
 
-# --- Helper Functions from fetch.py ---
+db = firestore.Client()
+users = db.collection("users")
+logs = db.collection("logs")
+songs = db.collection("songs")
+albums = db.collection("albums")
+singers = db.collection("singers")
+
+@dataclass
+class RatingRequest:
+    songID: str
+    rate: int
+    proID: str
+
+def submit_rating(data: RatingRequest):
+    logs.add({
+        "songID": data.songID,
+        "rate": data.rate,
+        "proID": data.proID
+    })
+
 def calculate_album_avg(album_id: str):
     album_songs = [doc.to_dict() for doc in songs.where("albumID", "==", album_id).stream()]
     ratings = [s.get("avgRateSong", 0) for s in album_songs if "avgRateSong" in s]
@@ -19,21 +38,29 @@ def calculate_singer_avg(sid: str):
         return None
     return sum(ratings) / len(ratings)
 
-# --- Seeder Functions ---
 def generate_mock_users(n=10):
-    return [{"nick": f"user_{i}", "password": "test123"} for i in range(1, n + 1)]
+    return [{"nick": f"user_{i}_{uuid.uuid4().hex[:5]}", "password": "test123"} for i in range(1, n + 1)]
 
 def seed_users():
     mock_users = generate_mock_users()
+    seeded_users = []
+
     for user in mock_users:
-        doc_ref = users.document()  # create new document each time
+        existing = users.where("nick", "==", user["nick"]).limit(1).stream()
+        if any(existing):
+            print(f"⚠️ Skipping existing user: {user['nick']}")
+            continue
+
+        doc_ref = users.document()
         user["proID"] = doc_ref.id
         doc_ref.set({
             "nick": user["nick"],
             "password": user["password"]
         })
         print(f"👤 Created user: {user['nick']}")
-    return mock_users
+        seeded_users.append(user)
+
+    return seeded_users
 
 def seed_logs(users, song_ids, num_ratings=30):
     for _ in range(num_ratings):
@@ -49,7 +76,6 @@ def seed_logs(users, song_ids, num_ratings=30):
         submit_rating(rating_data)
         print(f"⭐ {user['nick']} rated song {song_id} → {rating}/5")
 
-        # Update album avg
         song_doc = songs.document(song_id).get().to_dict()
         album_id = song_doc.get("albumID")
         if album_id:
@@ -58,7 +84,6 @@ def seed_logs(users, song_ids, num_ratings=30):
                 albums.document(album_id).update({"avgRateAlbum": album_avg})
                 print(f"📀 Updated avgRateAlbum for {album_id}: {album_avg:.2f}")
 
-            # Update singer avg
             album_doc = albums.document(album_id).get().to_dict()
             sid = album_doc.get("sid")
             if sid:
@@ -67,10 +92,13 @@ def seed_logs(users, song_ids, num_ratings=30):
                     singers.document(sid).update({"avgRateSinger": singer_avg})
                     print(f"🎤 Updated avgRateSinger for {sid}: {singer_avg:.2f}")
 
-# --- Run It ---
 if __name__ == "__main__":
     print("🚀 Seeding users...")
     users_with_ids = seed_users()
+
+    if not users_with_ids:
+        print("⚠️ No new users were seeded. Exiting.")
+        exit()
 
     print("🎵 Fetching all songs from Firestore...")
     song_docs = songs.stream()
