@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_BASE = "http://35.202.164.153"; 
+export const API_BASE = "http://35.188.156.109"; 
 
 export const fetchSongs = () => axios.get(`${API_BASE}/songs`);
 
