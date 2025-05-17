@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudrate-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudrate-frontend
+  template:
+    metadata:
+      labels:
+        app: cloudrate-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: gcr.io/thermal-imprint-459211-c7/cloudrate-frontend
+          ports:
+            - containerPort: 8080
