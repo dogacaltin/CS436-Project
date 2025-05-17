@@ -14,9 +14,9 @@ spec:
     spec:
       containers:
         - name: music-backend
-          image: gcr.io/thermal-imprint-459211-c7/music-backend:latest  
+          image: gcr.io/thermal-imprint-459211-c7/music-backend:latest
           ports:
-            - containerPort: 8000
+            - containerPort: 8080
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/secrets/google/key.json
@@ -24,6 +24,12 @@ spec:
             - name: firestore-key-volume
               mountPath: /var/secrets/google
               readOnly: true
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "250m"
+        
       volumes:
         - name: firestore-key-volume
           secret:
