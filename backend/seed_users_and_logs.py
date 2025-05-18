@@ -1,7 +1,7 @@
 import random
+import uuid
 from google.cloud import firestore
 from dataclasses import dataclass
-import uuid
 
 db = firestore.Client()
 users = db.collection("users")
@@ -22,6 +22,15 @@ def submit_rating(data: RatingRequest):
         "rate": data.rate,
         "proID": data.proID
     })
+
+def update_avg_rate_for_song(song_id: str):
+    song_logs = [doc.to_dict() for doc in logs.where("songID", "==", song_id).stream()]
+    ratings = [r["rate"] for r in song_logs if "rate" in r]
+    if ratings:
+        avg = sum(ratings) / len(ratings)
+        songs.document(song_id).update({"avgRateSong": avg})
+        return avg
+    return None
 
 def calculate_album_avg(album_id: str):
     album_songs = [doc.to_dict() for doc in songs.where("albumID", "==", album_id).stream()]
@@ -75,6 +84,10 @@ def seed_logs(users, song_ids, num_ratings=30):
         )
         submit_rating(rating_data)
         print(f"⭐ {user['nick']} rated song {song_id} → {rating}/5")
+
+        avg_song = update_avg_rate_for_song(song_id)
+        if avg_song is not None:
+            print(f"🎼 Updated avgRateSong for {song_id}: {avg_song:.2f}")
 
         song_doc = songs.document(song_id).get().to_dict()
         album_id = song_doc.get("albumID")
