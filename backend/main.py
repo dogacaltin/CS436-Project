@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import uuid
 import random
+import requests
 
 from models import RatingRequest, LoginRequest, SignupRequest
 from firestore_config import db, logs, songs, albums, singers, users
@@ -12,7 +13,7 @@ app = FastAPI()
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Or restrict to your frontend like ["http://localhost:3000"]
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,41 +30,45 @@ def get_songs():
 
 @app.post("/rate")
 def rate_song(data: RatingRequest):
-    logs.add(data.dict())
+    try:
+        print("📩 Incoming rating:", data.dict())
+        logs.add(data.dict())
 
-    # Update song average
-    rating_docs = logs.where("songID", "==", data.songID).stream()
-    ratings = [doc.to_dict()["rate"] for doc in rating_docs]
-    if ratings:
-        avg = sum(ratings) / len(ratings)
-        songs.document(data.songID).update({"avgRateSong": avg})
+        rating_docs = logs.where("songID", "==", data.songID).stream()
+        ratings = [doc.to_dict()["rate"] for doc in rating_docs]
+        if ratings:
+            avg = sum(ratings) / len(ratings)
+            songs.document(data.songID).update({"avgRateSong": avg})
+            trigger_log_function(data.proID, data.songID, data.rate)
 
-        # Update album
-        song_doc = songs.document(data.songID).get()
-        if song_doc.exists:
-            album_id = song_doc.to_dict().get("albumID")
-            if album_id:
-                album_docs = songs.where("albumID", "==", album_id).stream()
-                album_ratings = [d.to_dict().get("avgRateSong", 0) for d in album_docs]
-                if album_ratings:
-                    album_avg = sum(album_ratings) / len(album_ratings)
-                    albums.document(album_id).update({"avgRateAlbum": album_avg})
+            song_doc = songs.document(data.songID).get()
+            if song_doc.exists:
+                album_id = song_doc.to_dict().get("albumID")
+                if album_id:
+                    album_docs = songs.where("albumID", "==", album_id).stream()
+                    album_ratings = [d.to_dict().get("avgRateSong", 0) for d in album_docs]
+                    if album_ratings:
+                        album_avg = sum(album_ratings) / len(album_ratings)
+                        albums.document(album_id).update({"avgRateAlbum": album_avg})
 
-                # Update singer
-                album_doc = albums.document(album_id).get()
-                if album_doc.exists:
-                    sid = album_doc.to_dict().get("sid")
-                    if sid:
-                        album_ids = [a.id for a in albums.where("sid", "==", sid).stream()]
-                        singer_songs = [doc.to_dict() for doc in songs.stream() if doc.to_dict().get("albumID") in album_ids]
-                        singer_ratings = [s.get("avgRateSong", 0) for s in singer_songs if "avgRateSong" in s]
-                        if singer_ratings:
-                            singer_avg = sum(singer_ratings) / len(singer_ratings)
-                            singers.document(sid).update({"avgRateSinger": singer_avg})
+                    album_doc = albums.document(album_id).get()
+                    if album_doc.exists:
+                        sid = album_doc.to_dict().get("sid")
+                        if sid:
+                            album_ids = [a.id for a in albums.where("sid", "==", sid).stream()]
+                            singer_songs = [doc.to_dict() for doc in songs.stream() if doc.to_dict().get("albumID") in album_ids]
+                            singer_ratings = [s.get("avgRateSong", 0) for s in singer_songs if "avgRateSong" in s]
+                            if singer_ratings:
+                                singer_avg = sum(singer_ratings) / len(singer_ratings)
+                                singers.document(sid).update({"avgRateSinger": singer_avg})
 
-        return {"message": "Rating submitted", "new_avg": avg}
+            return {"message": "Rating submitted", "new_avg": avg}
+        else:
+            return {"message": "Rating failed"}
 
-    return {"message": "Rating failed"}
+    except Exception as e:
+        print("🔥 Error in /rate:", e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/signup")
 def signup(data: SignupRequest):
@@ -75,7 +80,7 @@ def signup(data: SignupRequest):
     users.document(pro_id).set({
         "proID": pro_id,
         "nick": data.nick,
-        "password": data.password  # Hash later for security
+        "password": data.password
     })
 
     return {"message": "User created", "proID": pro_id}
@@ -164,6 +169,21 @@ def get_singer(sid: str):
     if doc.exists:
         return doc.to_dict()
     raise HTTPException(status_code=404, detail="Singer not found")
+
+def trigger_log_function(proID, songID, rate):
+    url = "https://us-central1-thermal-imprint-459211-c7.cloudfunctions.net/log_review"
+    payload = {
+        "proID": proID,
+        "songID": songID,
+        "rate": rate
+    }
+
+    try:
+        response = requests.post(url, json=payload)
+        print("Log Function Response:", response.text)
+    except Exception as e:
+        print("Error calling log function:", e)
+
 
 if __name__ == "__main__":
     import uvicorn
