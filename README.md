@@ -38,10 +38,8 @@ CloudRate is a cloud-native application built using React, FastAPI, Docker, Kube
 
 ---
 
-### 🔧 Step-by-Step
-
-#### 1. **Build and Push Docker Images**
-
+### Deployment Guide
+ Build and Push Docker Images:
 ```bash
 # Backend
 docker build -t gcr.io/YOUR_PROJECT_ID/music-backend:latest ./backend
